@@ -1,0 +1,8 @@
+del *.class
+del ParseException.java
+del Parser.java
+del ParserConstants.java
+del ParserTokenManager.java
+del SimpleCharStream.java
+del Token.java
+del TokenMgrError.java
