@@ -145,7 +145,7 @@ ASTNode Let() :
     t = Seq()
     |
     {  List<Bind> decls  = new ArrayList<Bind>(); }
-    ( (<LET>  n=<Id>  <EQUAL> e1 = BA() <SEMIC>
+    ( (<LET>  n=<Id>  <EQUAL> e1 = List() <SEMIC>
       { decls.add(new Bind(n.image,e1)); } )+
         e2 = Seq() { t = new ASTLet(decls, e2); }
     )
@@ -175,14 +175,41 @@ ASTNode Seq() :
 
 ASTNode SeqExp() :
 {Token op;
-  ASTNode t1, t2;}
+  ASTNode t1, t2;
+  List<ASTNode> exps = new ArrayList<ASTNode>();
+}
 {
-     t1 = BA() ( ( op=<ASSIGN> ) t2 = BA() 
- 		 {
-		   t1 = new ASTAssign(t1, t2); 
-     } 
+     t1 = List() { exps.add(t1); } ( ( op=<ASSIGN> ) t2 = List()
+ 		 { exps.add(t2); } 
 		)*
-     { return t1; }  
+     { if(exps.size() <= 1) { return t1; }
+       else{
+           int size = exps.size();
+           ASTAssign t = new ASTAssign(exps.get(size - 2), exps.get(size - 1));
+           for(int i = size - 3; i >= 0; i--) {
+                t = new ASTAssign(exps.get(i), t);
+           }
+           return t; } }
+}
+
+ASTNode List():
+{
+  ASTNode t, e1;
+  List<ASTNode> elements = new ArrayList<>();
+}
+{
+  (
+    t = BA() { elements.add(t); } (<DCOLON> e1 = BA() { elements.add(e1); })*
+      { int size = elements.size();
+        if (size > 1) {
+          t = new ASTList(elements.get(size - 2), elements.get(size - 1));
+          for(int i = size - 3; i >= 0; i--) {
+              t = new ASTList(elements.get(i), t);
+          }
+        }
+      }
+  )
+  { return t; }
 }
 
 ASTNode BA() :
