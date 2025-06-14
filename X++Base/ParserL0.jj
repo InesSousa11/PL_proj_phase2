@@ -335,11 +335,11 @@ ASTNode Fact() :
     | <BOX> t=Fact() { t = new ASTBox(t); }
     | <DEREF> t=Fact() { t = new ASTDeref(t); }
     | <MINUS> t=Fact() { t = new ASTNeg(t); }
-    | <NOT> t=Fact() {  /* missing AST for not */; t = null;  }
+    | <NOT> t=Fact() { t = new ASTNot(t); }
     | <IF> t=BA() <LBRA> e1=Let() <RBRA> <ELSE> <LBRA> e2=Let() <RBRA> { t = new ASTIf(t, e1, e2 ); }
     | <WHILE> t=BA() <LBRA> body=Let() <RBRA> {  t = new ASTWhile(t,body); }
     | t = Fun()
-    | <PRINT> t=Fact() { /* missing AST for print */; t = null;  }
+    | <PRINT> t=Fact() { t = new ASTPrint(t); }
     | <PRINTLN> t=Fact() { t = new ASTPrintln(t);  }
     | <LPAR> t=Let() <RPAR> 
     | <NIL> { t = new ASTNil(); }
