@@ -23,5 +23,4 @@ public class ASTAssign implements ASTNode {
         this.t1 = t1;
         this.t2 = t2;
     }
-
 }
