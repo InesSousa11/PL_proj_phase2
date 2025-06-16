@@ -267,7 +267,6 @@ ASTNode List():
   Token op;
 }
 {
-  (
     t = Fact() { elements.add(t); }
     (
       LOOKAHEAD(2) (op=<DCOLON> | op=<LCOLON>)
@@ -287,7 +286,6 @@ ASTNode List():
         }
       }
     }
-  )
   { return t; }
 }
 
@@ -388,6 +386,7 @@ ASTType TypeF() :
         | <REF> <LT> t=Type() <GT> { t = new ASTTRef(t); }
         | <LIST> <LT> t=Type() <GT> { t = new ASTTList(t); }
         | <STRUCT> <LBRA> ll = LabelList() <RBRA> { t = new ASTTStruct(ll); return t; }
+        | <UNION> <LBRA> ll = LabelList() <RBRA> { t = new ASTTUnion(ll); return t; }
     )
     { return t; }
 }

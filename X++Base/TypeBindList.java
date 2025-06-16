@@ -15,4 +15,8 @@ public class TypeBindList  {
         public Set<String> labels() {
                 return lbl.keySet();
         }
+
+        public Map<String, ASTType> getAll() {
+                return lbl;
+        }
 }
