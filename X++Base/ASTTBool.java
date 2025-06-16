@@ -5,4 +5,8 @@ class ASTTBool implements ASTType {
     public String toStr() {
         return "bool";
     }
+
+    public boolean isSubtypeOf(ASTType other) {
+        return other instanceof ASTTBool;
+    }
 }

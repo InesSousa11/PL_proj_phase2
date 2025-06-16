@@ -6,4 +6,7 @@ public class ASTTString implements ASTType {
         return "string";
     }
 
+    public boolean isSubtypeOf(ASTType other) {
+        return other instanceof ASTTString;
+    }
 }

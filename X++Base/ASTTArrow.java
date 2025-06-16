@@ -9,6 +9,13 @@ public class ASTTArrow implements ASTType {
 
     public String toStr() {
         return dom.toStr()+"->"+codom.toStr();
-    }   
+    }
+
+    public boolean isSubtypeOf(ASTType other) {
+        if (other instanceof ASTTArrow o) {
+            return o.dom.isSubtypeOf(this.dom) && this.codom.isSubtypeOf(o.codom);
+        }
+        return false;
+    }
 }
 

@@ -5,4 +5,8 @@ class ASTTUnit implements ASTType {
     public String toStr() {
         return "()";
     }
+
+    public boolean isSubtypeOf(ASTType other) {
+        return other instanceof ASTTUnit;
+    }
 }
