@@ -11,4 +11,9 @@ public class ASTSeq implements ASTNode {
         this.first = first;
         this.second = second;
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        first.typecheck(env);         // type of first expression is ignored
+        return second.typecheck(env); // return the type of the second
+    }
 }

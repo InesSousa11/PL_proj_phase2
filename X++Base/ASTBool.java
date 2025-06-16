@@ -10,4 +10,7 @@ class ASTBool implements ASTNode  {
         return new VBool(b);
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        return new ASTTBool();
+    }
 }

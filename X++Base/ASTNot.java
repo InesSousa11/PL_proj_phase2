@@ -17,4 +17,13 @@ class ASTNot implements ASTNode  {
         return new VBool(!b);
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType t = expr.typecheck(env);
+
+        if (!(t instanceof ASTTBool)) {
+            throw new TypeError("Operand of not must be of type bool.");
+        }
+
+        return new ASTTBool();
+    }
 }

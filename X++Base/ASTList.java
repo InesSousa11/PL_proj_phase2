@@ -26,4 +26,23 @@ class ASTList implements ASTNode	{
         }
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType headType = head.typecheck(env);
+        ASTType tailType = tail.typecheck(env);
+
+        // Tail must be a list of the same type as head
+        if (tailType instanceof ASTTList) {
+            ASTTList tailListType = (ASTTList) tailType;
+            if (!headType.toStr().equals(tailListType.toStr().substring(5, tailListType.toStr().length() - 1))) {
+                throw new TypeError("Type mismatch in list: head type " + headType.toStr() + " does not match tail type " + tailType.toStr());
+            }
+            return tailType;
+        }
+
+        if (tail instanceof ASTNil) {
+            return new ASTTList(headType);
+        }
+
+        throw new TypeError("Tail of a list must be another list or nil, but got: " + tailType.toStr());
+    }
 }

@@ -20,4 +20,14 @@ class ASTWhile implements ASTNode {
         }
         return new VVoid();
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType condType = cond.typecheck(env);
+        if (!(condType instanceof ASTTBool)) {
+            throw new TypeError("Condition of 'while' must be of type bool.");
+        }
+
+        body.typecheck(env);  // Typechecking for side effects / scoping
+        return new ASTTUnit();  // 'while' returns nothing meaningful
+    }
 }

@@ -29,4 +29,18 @@ public class ASTFieldAccess implements ASTNode	{
         return target.toString() + "." + field;
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType targetType = target.typecheck(env);
+
+        if (!(targetType instanceof ASTTStruct structType)) {
+            throw new TypeError("Expected struct in field access, but got: " + targetType.toStr());
+        }
+
+        ASTType fieldType = structType.getFields().get(field);
+        if (fieldType == null) {
+            throw new TypeError("Field '" + field + "' not found in struct.");
+        }
+
+        return fieldType;
+    }
 }

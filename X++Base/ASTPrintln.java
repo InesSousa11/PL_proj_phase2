@@ -13,4 +13,8 @@ public	class ASTPrintln implements ASTNode	{
         return new VVoid(); // prevents extra output
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        expr.typecheck(env); // just check that the expression is well-typed
+        return new ASTTUnit(); // 'println' returns unit
+    }
 }

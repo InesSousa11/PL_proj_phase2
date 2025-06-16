@@ -12,4 +12,9 @@ public class ASTBox implements ASTNode	{
 
         return new VBox(v.eval(env));
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType innerType = v.typecheck(env);
+        return new ASTTRef(innerType);
+    }
 }

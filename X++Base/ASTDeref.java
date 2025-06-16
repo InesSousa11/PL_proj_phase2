@@ -26,4 +26,13 @@ public	class ASTDeref implements ASTNode	{
         throw new InterpreterError("Illegal type to ! operator. Must be a variable or a chain of dereferencing.");
     }
 
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType t = v.typecheck(env);
+
+        if (t instanceof ASTTRef refType) {
+            return refType.getType();
+        }
+
+        throw new TypeError("Illegal type to ! operator. Must be a reference (ref<T>).");
+    }
 }

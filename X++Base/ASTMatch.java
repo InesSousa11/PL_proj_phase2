@@ -38,4 +38,32 @@ public class ASTMatch implements ASTNode {
             }
         }
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType listType = list.typecheck(env);
+
+        if (!(listType instanceof ASTTList listT)) {
+            throw new TypeError("Match expression must be over a list, but got: " + listType.toStr());
+        }
+
+        ASTType elementType = listT.getElementType();
+
+        // Type check nil_body in the same environment
+        ASTType nilType = nil_body.typecheck(env);
+
+        // Extend environment for the cons case
+        Environment<ASTType> newEnv = env.beginScope();
+        newEnv.assoc(head_parameter, elementType);
+        newEnv.assoc(tail_parameter, new ASTTList(elementType));
+
+        ASTType consType = body.typecheck(newEnv);
+
+        // Both branches must return the same type
+        if (!nilType.toStr().equals(consType.toStr())) {
+            throw new TypeError("Mismatched types in match branches: "
+                    + nilType.toStr() + " vs " + consType.toStr());
+        }
+
+        return nilType;
+    }
 }

@@ -25,4 +25,19 @@ public class ASTFun implements ASTNode	{
 
         return new VFunc(env, params, bodyNode);
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType paramType;
+        try {
+            paramType = env.find(param);
+        } catch (InterpreterError e) {
+            throw new TypeError("Function parameter '" + param + "' has no declared type.");
+        }
+
+        Environment<ASTType> extendedEnv = env.beginScope();
+        extendedEnv.assoc(param, paramType);
+
+        ASTType resultType = body.typecheck(extendedEnv);
+        return new ASTTArrow(paramType, resultType);
+    }
 }

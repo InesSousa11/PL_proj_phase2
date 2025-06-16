@@ -26,4 +26,23 @@ public class ASTApp implements ASTNode {
 
         return vf.body.eval(extended);
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType funcType = function.typecheck(env);
+
+        if (!(funcType instanceof ASTTArrow arrowType)) {
+            throw new TypeError("Trying to apply a non-function type: " + funcType.toStr());
+        }
+
+        ASTType argType = argument.typecheck(env);
+        ASTType expectedArgType = arrowType.dom;
+        ASTType returnType = arrowType.codom;
+
+        if (!argType.toStr().equals(expectedArgType.toStr())) {
+            throw new TypeError("Function expected argument of type " + expectedArgType.toStr() +
+                    ", but got: " + argType.toStr());
+        }
+
+        return returnType;
+    }
 }

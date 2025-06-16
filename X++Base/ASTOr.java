@@ -16,5 +16,14 @@ class ASTOr implements ASTNode {
         }
         throw new InterpreterError("Expected booleans in ||");
     }
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType leftType = lhs.typecheck(env);
+        ASTType rightType = rhs.typecheck(env);
 
+        if (!(leftType instanceof ASTTBool && rightType instanceof ASTTBool)) {
+            throw new TypeError("Both sides of '||' must be of type bool.");
+        }
+
+        return new ASTTBool();
+    }
 }

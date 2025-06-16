@@ -23,7 +23,7 @@ public class Environment<E>{
         return anc;
     }
 
-    void assoc(String id, E bind) throws InterpreterError {
+    void assoc(String id, E bind) {
         bindings.put(id, bind);
     }
 

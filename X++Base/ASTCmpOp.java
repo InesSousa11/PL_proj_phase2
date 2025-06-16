@@ -30,4 +30,15 @@ public class ASTCmpOp implements ASTNode {
             default -> throw new InterpreterError("Unknown operator: " + op.image);
         };
     }
+
+    public ASTType typecheck(Environment<ASTType> env) throws TypeError {
+        ASTType t1 = left.typecheck(env);
+        ASTType t2 = right.typecheck(env);
+
+        if (!(t1 instanceof ASTTInt) || !(t2 instanceof ASTTInt)) {
+            throw new TypeError("Comparison operands must be integers");
+        }
+
+        return new ASTTBool();
+    }
 }
