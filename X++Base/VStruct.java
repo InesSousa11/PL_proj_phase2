@@ -12,6 +12,14 @@ class VStruct implements IValue {
     }
 
     public String toStr() {
-        return fields.toString();
+        StringBuilder sb = new StringBuilder("{ ");
+        boolean first = true;
+        for (Map.Entry<String, IValue> entry : fields.entrySet()) {
+            if (!first) sb.append(", ");
+            first = false;
+            sb.append("#").append(entry.getKey()).append(" = ").append(entry.getValue().toStr());
+        }
+        sb.append(" }");
+        return sb.toString();
     }
 }

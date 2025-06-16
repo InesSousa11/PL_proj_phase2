@@ -22,11 +22,30 @@ public class ASTLet implements ASTNode {
     public ASTType typecheck(Environment<ASTType> env) throws TypeError {
         Environment<ASTType> tenv = env.beginScope();
 
+        // First pass: register all declared types (for recursive references)
         for (Bind b : decls) {
-            ASTType type = b.getExp().typecheck(tenv);
-            tenv.assoc(b.getId(), type);
+            ASTType declared = b.getDeclaredType();
+            if (declared != null) {
+                tenv.assoc(b.getId(), declared);  // allow forward reference
+            }
+        }
+
+        // Second pass: typecheck all expressions
+        for (Bind b : decls) {
+            ASTType inferred = b.getExp().typecheck(tenv);
+            ASTType declared = b.getDeclaredType();
+
+            if (declared != null) {
+                if (!inferred.isSubtypeOf(declared)) {
+                    throw new TypeError("Declared type for '" + b.getId() + "' does not match inferred type.\n" +
+                            "Declared: " + declared.toStr() + ", Inferred: " + inferred.toStr());
+                }
+            } else {
+                tenv.assoc(b.getId(), inferred);
+            }
         }
 
         return body.typecheck(tenv);
     }
+
 }

@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class ASTApp implements ASTNode {
 
     ASTNode function;
@@ -11,19 +13,28 @@ public class ASTApp implements ASTNode {
     public IValue eval(Environment<IValue> env) throws InterpreterError {
         IValue fval = function.eval(env);
 
-        if (!(fval instanceof VFunc)) {
+        if (!(fval instanceof VFunc vf)) {
             throw new InterpreterError("Trying to apply a non-function value");
         }
 
-        VFunc vf = (VFunc) fval;
-        if (vf.params.size() != 1) {
-            throw new InterpreterError("Function expected 1 argument, but has: " + vf.params.size());
+        if (vf.params.isEmpty()) {
+            throw new InterpreterError("Function has no parameters left to apply.");
         }
 
+        String param = vf.params.get(0);
         IValue argVal = argument.eval(env);
-        Environment<IValue> extended = new Environment<>(vf.e);
-        extended.assoc(vf.params.get(0), argVal);
 
+        // Create a new environment with this param bound
+        Environment<IValue> extended = new Environment<>(vf.e);
+        extended.assoc(param, argVal);
+
+        // If more parameters remain, return a new VFunc
+        if (vf.params.size() > 1) {
+            List<String> remainingParams = vf.params.subList(1, vf.params.size());
+            return new VFunc(extended, remainingParams, vf.body);
+        }
+
+        // Final parameter: evaluate body
         return vf.body.eval(extended);
     }
 

@@ -4,8 +4,9 @@ public class TypeBindList  {
 
         private HashMap<String,ASTType> lbl;
 
-        public TypeBindList(HashMap<String,ASTType> ll) {
-                lbl = ll;
+        // Accepts any Map, not just HashMap
+        public TypeBindList(Map<String, ASTType> ll) {
+                this.lbl = new HashMap<>(ll); // safely copies the contents
         }
 
         public ASTType get(String field) {

@@ -19,6 +19,8 @@ SKIP :
 TOKEN :
 {
 
+  < HASH : "#" >
+  |
   < LET : "let" >
   |
   < TYPE : "type" >
@@ -138,15 +140,18 @@ ASTNode Start():
 ASTNode Let() :
 { Token n; 
   ASTNode t, e1, e2;
-  ASTType t1;
+  ASTType t1 = null;
 }
 { 
     (
     t = Seq()
     |
     {  List<Bind> decls  = new ArrayList<Bind>(); }
-    ( (<LET>  n=<Id>  <EQUAL> e1 = BA() <SEMIC>
-      { decls.add(new Bind(n.image,e1)); } )+
+    ( (<LET>  n=<Id>
+      [ <COLON> t1 = Type() ]
+      <EQUAL> e1 = BA() <SEMIC>
+      { decls.add(new Bind(n.image,e1, t1)); }
+      )+
         e2 = Seq() { t = new ASTLet(decls, e2); }
     )
 |
@@ -244,6 +249,7 @@ ASTNode Exp() :
 
 ASTNode Term() :
 {Token op;
+Token idToken;
   ASTNode t1, t2;}
 {
      t1 = List()
@@ -251,9 +257,9 @@ ASTNode Term() :
      op=<STAR> t2 = Fact()   { t1 = new ASTMult(t1,t2); }
 		 |
 		 op=<DIV> t2 = Fact()  { t1 = new ASTDiv(t1,t2); }
-     |
-		 op=<DOT> op = <Id>  { t1 = new ASTFieldAccess(t1, op.image); }
 		 |
+     <DOT> <HASH> idToken = <Id> { t1 = new ASTFieldAccess(t1, idToken.image); }
+     |
 		 op = <LPAR> t2 = Let () <RPAR> { t1 = new ASTApp(t1,t2); } 
 		)*
      { return t1; } 
@@ -296,9 +302,11 @@ ASTNode t, e1;
 ASTType at;
 }
 { (
-  <COMMA> n = <Id>  <COLON> at = Type() { e1 = FunB(n.image); t = new ASTFun(sid,e1); }
+  <COMMA> n = <Id>  <COLON> at = Type() 
+  { e1 = FunB(n.image); 
+  t = new ASTFun(sid,at, e1); }
   |
-  <ARROW> <LBRA> e1 = Let() <RBRA> { t = new ASTFun(sid,e1);}
+  <ARROW> <LBRA> e1 = Let() <RBRA> { t = new ASTFun(sid,null, e1);}
   )
   { return t; } 
 }
@@ -311,8 +319,9 @@ ASTType at;
 }
 {
       <FN> n=<Id> <COLON> at = Type()
-      { t = new ASTFun(n.image, null); e1 = t;}
-      ( <COMMA> n = <Id> <COLON> at = Type() { e2 = new ASTFun(n.image, null);
+      { t = new ASTFun(n.image, at, null); e1 = t;}
+      ( <COMMA> n = <Id> <COLON> at = Type() 
+      { e2 = new ASTFun(n.image, at, null);
 		  ((ASTFun)e1).setBody(e2); e1 = e2; })*
 		  <ARROW> <LBRA> e2 = Let() <RBRA> { ((ASTFun)e1).setBody(e2); }
       { return t; } 
@@ -320,10 +329,11 @@ ASTType at;
 
 
 ASTNode Fact() :
-{ Token n,m; 
+{ Token n,m, idToken, t1; 
   ASTNode t, e1, e2;
   List<Bind> decls;
   ASTNode  body, alt;
+  Map<String, ASTNode> fields;
 } {
    (
       n=<Num> { t = new ASTInt(Integer.parseInt(n.image)); } 
@@ -344,6 +354,7 @@ ASTNode Fact() :
     | <MATCH> t = Let() <LBRA> <NIL> <SARROW> e1 =Let()
       <PIPE> n=<Id> <DCOLON> m=<Id> <SARROW> e2 =Let() <RBRA>
       { t = new ASTMatch(t,e1,n.image,m.image,e2);}
+    | <LBRA> fields = StructExprList() <RBRA> { t = new ASTStruct(fields); }
     )
    { return t; }
 }
@@ -353,7 +364,8 @@ ASTType Type() :
   ASTType t1, t2;
 }
 {        
-    t1 = TypeF() (<SARROW> t2 = Type() { t1 = new ASTTArrow(t1,t2);} )?
+    t1 = TypeF() 
+    (<SARROW> t2 = Type() { t1 = new ASTTArrow(t1,t2);} )?
     { return t1; }
 }
 
@@ -389,4 +401,18 @@ ASTType TypeF() :
         | <UNION> <LBRA> ll = LabelList() <RBRA> { t = new ASTTUnion(ll); return t; }
     )
     { return t; }
+}
+
+Map<String, ASTNode> StructExprList() :
+{
+  Map<String, ASTNode> fields = new HashMap<>();
+  Token label;
+  ASTNode expr;
+}
+{
+  (
+    <HASH> label = <Id> <EQUAL> expr = Let() { fields.put(label.image, expr); }
+    ( <COMMA> <HASH> label = <Id> <EQUAL> expr = Let() { fields.put(label.image, expr); } )*
+  )?
+  { return fields; }
 }

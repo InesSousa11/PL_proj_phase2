@@ -4,9 +4,11 @@ import java.util.List;
 public class ASTFun implements ASTNode	{
     String param;
     ASTNode body;
+    ASTType paramType;
 
-    public ASTFun(String param, ASTNode body) {
+    public ASTFun(String param, ASTType paramType, ASTNode body) {
         this.param = param;
+        this.paramType = paramType;
         this.body = body;
     }
 
@@ -27,15 +29,8 @@ public class ASTFun implements ASTNode	{
     }
 
     public ASTType typecheck(Environment<ASTType> env) throws TypeError {
-        ASTType paramType;
-        try {
-            paramType = env.find(param);
-        } catch (InterpreterError e) {
-            throw new TypeError("Function parameter '" + param + "' has no declared type.");
-        }
-
         Environment<ASTType> extendedEnv = env.beginScope();
-        extendedEnv.assoc(param, paramType);
+        extendedEnv.assoc(param, paramType); // no lookup, just use known type
 
         ASTType resultType = body.typecheck(extendedEnv);
         return new ASTTArrow(paramType, resultType);

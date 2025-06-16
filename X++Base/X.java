@@ -11,6 +11,7 @@ public class X {
                 System.out.print("# ");
                 exp = parser.Start();
                 if (exp==null) System.exit(0);
+                exp.typecheck(new Environment<ASTType>());
                 IValue v = exp.eval(new Environment<IValue>());
                 System.out.println(v.toStr());
             } catch (ParseException e) {
